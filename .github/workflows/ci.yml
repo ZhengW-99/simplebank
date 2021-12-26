@@ -12,22 +12,23 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:12
+        image: postgres:12-alpine
         env:
           POSTGRES_USER: root
           POSTGRES_PASSWORD: secret
           POSTGRESS_DB: simple_bank
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
+        
           
     steps:
+    
     - uses: actions/checkout@v2
-      
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
