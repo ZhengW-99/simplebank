@@ -7,23 +7,29 @@ import (
 )
 
 // Store provides all functions to execute db quires and transactions
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, arg TransferTxParms) (TransferTxResult, error)
+}
+
+// SQLStore provides all functions to execute SQL quires and transactions
 // 组合：扩展结构功能而不是继承的首选方式
 // Quiers 提供的所有的单个查询功能都将可用于Store
-type Store struct {
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
 // NewStore creates a new Store
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
 // execTx executes a function within a database transaction
-func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -59,7 +65,7 @@ type TransferTxResult struct {
 
 // TransferTx perform a money transfer from one account to other.
 // It creates a transfer record, add account entries, and update accounts' balance within a single database transaction
-func (store *Store) TransferTx(ctx context.Context, arg TransferTxParms) (TransferTxResult, error) {
+func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParms) (TransferTxResult, error) {
 	var result TransferTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {
