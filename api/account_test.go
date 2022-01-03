@@ -20,6 +20,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+//  for test
 func TestGetAccountAPI(t *testing.T) {
 	user, _ := randomUser(t)
 	account := randomAccount(user.Username)
